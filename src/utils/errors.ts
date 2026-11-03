@@ -20,6 +20,7 @@ import {
   SFURoomCreationRestrictedError as RTCSFURoomCreationRestrictedError,
 } from "@element-hq/matrixrtc-sdk";
 
+import { type CallPermissions } from "../state/CallViewModel/CallViewModel";
 import { i18n, i18nKey } from "./i18n";
 
 export enum ErrorCode {
@@ -46,6 +47,7 @@ export enum ErrorCategory {
   NETWORK_CONNECTIVITY = "NETWORK_CONNECTIVITY",
   CLIENT_CONFIGURATION = "CLIENT_CONFIGURATION",
   UNKNOWN = "UNKNOWN",
+  WAITING = "WAITING",
   SYSTEM_FAILURE = "SYSTEM_FAILURE",
   // SYSTEM_FAILURE / FEDERATION_FAILURE ..
 }
@@ -273,6 +275,22 @@ export class SFURoomCreationRestrictedError extends ElementCallError {
 }
 
 /**
+ * Error indicating that room creation is restricted by the SFU (just like SFURoomCreationRestrictedError),
+ * But with actionable indications because we fall in an expected error (the user is awaiting a host)
+ */
+export class WaitingForHostError extends ElementCallError {
+  public constructor() {
+    super(
+      i18n.t("error.waiting_for_host"),
+      ErrorCode.SFU_ERROR,
+      ErrorCategory.WAITING,
+      i18n.t("error.waiting_for_host_description"),
+    );
+  }
+}
+
+
+/**
  * Error indicating that the SFU peer-to-peer connection timed out.
  */
 export class PeerConnectionTimeoutError extends ElementCallError {
@@ -310,7 +328,10 @@ export class LivekitConnectionError extends ElementCallError {
  * The SDK's error as the one Element Call shows, with its translation. The
  * SDK speaks in codes and classes; the title and description come from here.
  */
-export function fromMatrixRTCError(error: MatrixRTCError): ElementCallError {
+export function fromMatrixRTCError(
+  error: MatrixRTCError,
+  callPermissions?: CallPermissions = {},
+): ElementCallError {
   if (error instanceof RTCTransportMissingError)
     return new MatrixRTCTransportMissingError(error.domain);
   if (error instanceof RTCMembershipManagerError)
@@ -324,6 +345,11 @@ export function fromMatrixRTCError(error: MatrixRTCError): ElementCallError {
   if (error instanceof RTCInsufficientCapacityError)
     return new InsufficientCapacityError();
   if (error instanceof RTCSFURoomCreationRestrictedError)
+    /* The error will depend wheither call creation is allowed or not */
+    return "callCreationDisabled" in callPermissions &&
+      callPermissions.callCreationDisabled === true
+      ? new WaitingForHostError()
+      : new SFURoomCreationRestrictedError();
     return new SFURoomCreationRestrictedError();
   if (error instanceof RTCPeerConnectionTimeoutError)
     return new PeerConnectionTimeoutError();

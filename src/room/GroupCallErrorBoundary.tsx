@@ -13,11 +13,13 @@ import {
   type ReactNode,
   type SVGAttributes,
   useCallback,
+  useEffect,
 } from "react";
 import { Trans, useTranslation } from "react-i18next";
 import {
   ErrorSolidIcon,
   HostIcon,
+  HourglassIcon,
   OfflineIcon,
   WebBrowserIcon,
 } from "@vector-im/compound-design-tokens/assets/web/icons";
@@ -31,6 +33,7 @@ import {
   ErrorCategory,
   ErrorCode,
   UnknownCallError,
+  WaitingForHostError,
 } from "../utils/errors.ts";
 import { FullScreenView } from "../FullScreenView.tsx";
 import { ErrorView } from "../ErrorView.tsx";
@@ -47,6 +50,8 @@ interface ErrorPageProps {
   recoveryActionHandler: RecoveryActionHandler;
   resetError: () => void;
 }
+
+const AUTOMATED_RETRY_MS = 10_000;
 
 const ErrorPage: FC<ErrorPageProps> = ({
   error,
@@ -65,6 +70,9 @@ const ErrorPage: FC<ErrorPageProps> = ({
     case ErrorCategory.CLIENT_CONFIGURATION:
       icon = WebBrowserIcon;
       break;
+    case ErrorCategory.WAITING:
+      icon = HourglassIcon;
+      break;
     default:
       icon = ErrorSolidIcon;
   }
@@ -75,6 +83,23 @@ const ErrorPage: FC<ErrorPageProps> = ({
       label: t("call_ended_view.reconnect_button"),
       onClick: () => void recoveryActionHandler("reconnect"),
     });
+  }
+  if (error instanceof WaitingForHostError) {
+    actions.push({
+      label: t("action.retry"),
+      onClick: () => void recoveryActionHandler("reconnect"),
+    });
+    
+    // Keep trying until the host has started the call. A failed attempt mounts
+    // a fresh page, which arms a fresh timer.
+    const latestRecoveryActionHandler = useLatest(recoveryActionHandler);
+    useEffect(() => {
+      const timeout = setTimeout(
+        () => void latestRecoveryActionHandler.current("reconnect"),
+        AUTOMATED_RETRY_MS,
+      );
+      return (): void => clearTimeout(timeout);
+    }, [error, latestRecoveryActionHandler]);
   }
 
   const technicalError =

@@ -197,6 +197,18 @@ export interface ConfigOptions {
   matrix_rtc_mode?: MatrixRTCMode;
 
   /**
+   * Element Call configuration related to user permissions.
+   */
+  call_permissions?: {
+    /**
+     * Declares that call creation is disabled for the users of this deployment.
+     * Instead of reporting that the call could not be created,
+     * Element Call then waits for an authorized participant to create the call room.
+     */
+    call_creation_disabled?: boolean;
+  };
+
+  /**
    * These are low level options that are used to configure the MatrixRTC session.
    * Take care when changing these options.
    */

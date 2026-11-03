@@ -162,6 +162,8 @@ export const ActiveCall: FC<ActiveCallProps> = (props) => {
       urlParams;
 
     const capture = captureSettings();
+    const callPermissions = Config.get().call_permissions;
+
     const slot = createRTCSlot(
       scope,
       props.client,
@@ -194,6 +196,9 @@ export const ActiveCall: FC<ActiveCallProps> = (props) => {
           props.rtcSession,
         ),
         windowSize$: scope.behavior(observeElementSize$(rootElement)),
+        callPermissions: callPermissions && {
+          callCreationDisabled: callPermissions.call_creation_disabled,
+        },
       },
       reactionsReader.raisedHands$,
       reactionsReader.reactions$,

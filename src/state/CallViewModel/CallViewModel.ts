@@ -219,6 +219,17 @@ export interface CallViewModelOptions {
   windowSize$: Behavior<{ width: number; height: number }>;
   /** Optional behavior overriding for the screensharing, for testing */
   toggleScreensharing?: () => void;
+  /** What this deployment lets its users do. Defaults to everything. */
+  callPermissions?: CallPermissions;
+}
+
+/** What a deployment lets its users do in a call. */
+export interface CallPermissions {
+  /**
+   * Whether the users are not allowed to create calls, so that failing to
+   * create one means waiting for a host. Defaults to false.
+   */
+  callCreationDisabled?: boolean;
 }
 
 /**
@@ -1547,7 +1558,9 @@ export function createCallViewModel$(
     fatalError$: scope.behavior(
       rtcParticipation.state$.pipe(
         map((state) =>
-          state.kind === "failed" ? fromMatrixRTCError(state.error) : null,
+          state.kind === "failed"
+            ? fromMatrixRTCError(state.error, options.callPermissions)
+            : null,
         ),
       ),
     ),

@@ -14,6 +14,7 @@
     "raise_hand": "Lever la main",
     "register": "S’enregistrer",
     "remove": "Supprimer",
+    "retry": "Réessayer",
     "show_less": "Afficher moins",
     "show_more": "Afficher plus",
     "sign_in": "Connexion",
@@ -81,7 +82,9 @@
     "generic": "Un problème est survenu",
     "insufficient_capacity": "Capacité insuffisante",
     "insufficient_capacity_description": "Le serveur a atteint sa capacité maximale et vous ne pouvez pas rejoindre l'appel pour le moment. Veuillez réessayer plus tard ou contacter l'administrateur du serveur si le problème persiste.",
-    "unexpected_ec_error": "Une erreur inattendue s'est produite (<0>Code d'erreur :</0> <1>{{ errorCode }}</1>). Veuillez contacter l'administrateur de votre serveur."
+    "unexpected_ec_error": "Une erreur inattendue s'est produite (<0>Code d'erreur :</0> <1>{{ errorCode }}</1>). Veuillez contacter l'administrateur de votre serveur.",
+    "waiting_for_host": "En attente de l'hôte",
+    "waiting_for_host_description": "Personne n'est actuellement disponible, et vous n'êtes pas autorisé à créer un appel. Merci d'attendre qu'un hôte rejoigne la discussion."
   },
   "group_call_loader": {
     "banned_body": "Vous avez été banni du salon.",
