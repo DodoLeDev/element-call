@@ -37,6 +37,7 @@ import {
 } from "../utils/errors.ts";
 import { FullScreenView } from "../FullScreenView.tsx";
 import { ErrorView } from "../ErrorView.tsx";
+import { useLatest } from "../useLatest";
 import styles from "../ErrorView.module.css";
 
 export type CallErrorRecoveryAction = "reconnect"; // | "retry" ;

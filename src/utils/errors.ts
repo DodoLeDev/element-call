@@ -330,7 +330,7 @@ export class LivekitConnectionError extends ElementCallError {
  */
 export function fromMatrixRTCError(
   error: MatrixRTCError,
-  callPermissions?: CallPermissions = {},
+  callPermissions: CallPermissions = {},
 ): ElementCallError {
   if (error instanceof RTCTransportMissingError)
     return new MatrixRTCTransportMissingError(error.domain);
